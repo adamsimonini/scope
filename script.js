@@ -6,16 +6,16 @@ var uninitialized; // this var is declared (it's given a name and a spot in memo
 console.log(`Accessing (uninitialized), which is a declared variable that doesn't have an initial value: ${uninitialized}`);
 
 // accessing (p) before I wrote its declaration works due to variable hoisting (see https://www.w3schools.com/js/js_hoisting.asp). Hoisting doesn't set its no initial value, so it's undefined
-console.log(`Trying to access (p) before it has been declared: ${p}`)
+console.log(`Trying to access (p) before the line of code where it's declared: ${p}`);
 
 console.log('%cThis is all normal stuff we have dealth with', 'color: black; font-size: 14px; background-color: white');
 // declaring (p) as a global variable and initializing it to be 1, meaning all code can access and change it; it's global just in virtue of it not being nested within a function or object code block
 var p = 1;
-console.log(`(p) has been declared, and is value initialized: ${p}`)
+console.log(`(p) has been declared, and is value initialized: ${p}`);
 
 // reassigning the value of a (and changing its type from number to string in the process)
 p = "hello";
-console.log(`(p) has been reassigned: ${p}`)
+console.log(`(p) has been reassigned: ${p}`);
 
 console.log('%cOur first function is addTwo, which utilizes one argument and one variable of local scope', 'color: black; font-size: 14px; background-color: white');
 // declaring a function, which takes in one arguemnt: p. Note that the argument name a has no inherent relation to the variable (p) above.
@@ -46,7 +46,7 @@ console.log('%cOur second function is reassign', 'color: black; font-size: 14px;
 function reassign() {
     //  (p) would become a global variable, since "var" isn't used when declaring it. However, (p) already exists in the global scope, so instead (p) is reassigned to 55;
     p = 55;
-    console.log(`(p) is a globally scoped variable, the value of which is reassigned when reassign() is invoked`);
+    console.log(`(p) is a globally scoped variable, the value of which is reassigned when reassign() is invoked: ${p}`);
     // (x) is a new variable. Although it's initialized here (initialized to equal the string "apples"), it's not declared with the "var" keyword. Consequently, JavaScript rips it out of this function's
     // scope and hoists it to the global scope. Very odd!
     x = "apples";
@@ -57,7 +57,7 @@ function reassign() {
 
 reassign(); // this function reassigns the value of (a), and both declairs (x) and initializes (x) to be "apples". 
 console.log(`(x) has now become a globally scoped variable due to reassign() being invoked: ${x}`);
-console.log(`(p), our global variable, had its value reassigned when reassign() was invoked: ${p}`)
+console.log(`(p), our global variable, had its value reassigned when reassign() was invoked: ${p}`);
 
 // because the "var" keyword was not used on liune 43, where x was declaired and initialized, it gets declaired as a globally scoped variable
 console.log(`Our function reassign() also declared and initialized a new variable (x), which was hoisted into global scope, so it persists beyond the function: ${x}`)
@@ -84,7 +84,7 @@ function parentFunction() {
         // note that childFunction() has access to both globally scoped variables, and variables within it's parent function
         console.log(`childFunction() has access to its parent functions variable: ${p}`);
         console.log(`And of course, childFunction() has access to globally scoped variables, too: ${global}`);
-        console.log(`We can also explicitly target our global (p), as opposed to our local (p): ${window.p}`)
+        console.log(`We can also explicitly target our global (p), as opposed to our local (p): ${window.p}`);
         var q = 999;
     }
     // the following line will crash our JavaScript, as parentFunction() has zero access to the variables within childFunction()
@@ -95,3 +95,31 @@ function parentFunction() {
 parentFunction()
 
 console.log("%cClosures", 'color: red; font-size: 30px;');
+console.log("%cClosures refer to functions that when invoked retain access to their parent's and grandparent's scope (even after they have closed)", 'color: black; font-size: 14px; background-color: white');
+
+function printName() {
+    var name = "Usain Bolt";
+    function logger() {
+        // the variable being logged belongs to the scope above logger, which it has access to
+        console.log(name)
+    }
+    return logger;
+}
+printName(); //nothing happens here because we return printName's child - logger - but never invoke it
+
+// invoking myFunction actually just means invoking logger(), since that is what is returned by printName(). The closure here is just that logger() retains access to it's parent's enviroment, namely the var "name"
+var myFunction = printName();
+myFunction();
+
+// var apple = 10;
+function test(x) {
+    return function(y) {
+        return function(z) { 
+            return x + y + z // this function has access to all parent-scoped and grandparent-scoped arguments
+        }
+    }
+}
+
+console.log(test('a')('b')('c')); // test('a') returns a function which accepts ('b'), which itself returns a function that accepts ('c')
+
+// test("a") -> function("b") -> function (c) -> returns x + y + z, which is then logged to console
